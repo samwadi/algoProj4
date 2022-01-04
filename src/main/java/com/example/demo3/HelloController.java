@@ -4,6 +4,8 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
+
+
 public class HelloController {
     @FXML
     private Button button1;
@@ -63,6 +65,7 @@ public class HelloController {
                 ended=false;
                 xPlayer=5;oPlayer=0;
                 label+="PVP";
+                clicked=false;
                 break;
             case "hard":
                 difficulty="hard";
@@ -71,6 +74,7 @@ public class HelloController {
                 ended=false;
                 xPlayer=5;oPlayer=0;
                 label+="hard";
+                clicked=false;
                 break;
             case "easy":
                 difficulty="easy";
@@ -79,6 +83,7 @@ public class HelloController {
                 ended=false;
                 xPlayer=5;oPlayer=0;
                 label+="easy";
+                clicked=false;
                 break;
         }
         System.out.println(difficulty);turns.setText(label+" turn: X's Turn!");
@@ -119,9 +124,9 @@ public class HelloController {
             case "button1":
                 if (oTurn){
                     midMood(button1,0,0);
-                    oTurn=false;
+
                 }
-                else if (xo[0][0]!=1||xo[0][0]!=2){
+                else if (xo[0][0]==0){
                     xo[0][0]=1;
                     button1.setText("X");
                     button1.setStyle("-fx-background-color: #7d0013");
@@ -144,9 +149,9 @@ public class HelloController {
                 case "button2":
                     if (oTurn){
                         midMood(button2,0,1);
-                        oTurn=false;
+
                     }
-                    else if (xo[0][1]!=1||xo[0][1]!=2){
+                    else if (xo[0][1]==0){
                     xo[0][1]=1;
                     button2.setText("X");
                         button2.setStyle("-fx-background-color: #7d0013");
@@ -168,9 +173,9 @@ public class HelloController {
                 case "button3":
                     if (oTurn){
                         midMood(button3,0,2);
-                        oTurn=false;
+
                     }
-                    else if (xo[0][2]!=1||xo[0][2]!=2){
+                    else if (xo[0][2]==0){
                     xo[0][2]=1;
                     button3.setText("X");
                         button3.setStyle("-fx-background-color: #7d0013");
@@ -191,9 +196,9 @@ public class HelloController {
                 case "button4":
                     if (oTurn){
                         midMood(button4,1,0);
-                        oTurn=false;
+
                     }
-                    else if (xo[1][0]!=1||xo[1][0]!=2){
+                    else if (xo[1][0]==0){
                     xo[1][0]=1;
                     button4.setText("X");
                         button4.setStyle("-fx-background-color: #7d0013");
@@ -214,9 +219,9 @@ public class HelloController {
                 case "button5":
                     if (oTurn){
                         midMood(button5,1,1);
-                        oTurn=false;
+
                     }
-                    else if (xo[1][1]!=1||xo[1][1]!=2){
+                    else if (xo[1][1]==0){
                     xo[1][1]=1;
                     button5.setText("X");
                         button5.setStyle("-fx-background-color: #7d0013");
@@ -237,9 +242,8 @@ public class HelloController {
                 case "button6":
                     if (oTurn){
                         midMood(button6,1,2);
-                        oTurn=false;
                     }
-                    else  if (xo[1][2]!=1||xo[1][2]!=2){
+                    else  if (xo[1][2]==0){
                         xo[1][2]=1;
 
                     button6.setText("X");
@@ -262,9 +266,8 @@ public class HelloController {
                 case "button7":
                     if (oTurn){
                         midMood(button7,2,0);
-                        oTurn=false;
                     }
-                    else if (xo[2][0]!=1||xo[2][0]!=2){
+                    else if (xo[2][0]==0){
                     xo[2][0]=1;
                     button7.setText("X");
                         button7.setStyle("-fx-background-color: #7d0013");
@@ -275,7 +278,8 @@ public class HelloController {
                             turns.setText(label+" turn: O's Turn!");
                         }else {
                             compMove(difficulty);
-                        }                    }else {
+                        }
+                    }else {
                     new Alert(Alert.AlertType.ERROR, "box already chosen").showAndWait();
                     clicked=false;
                     oTurn=false;
@@ -287,7 +291,7 @@ public class HelloController {
                         midMood(button8,2,1);
                         oTurn=false;
                     }
-                    else if (xo[2][1]!=1||xo[2][1]!=2){
+                    else if (xo[2][1]==0){
                     xo[2][1]=1;
                     button8.setText("X");
                         xPlayer--;
@@ -311,7 +315,7 @@ public class HelloController {
                         midMood(button9,2,2);
                         oTurn=false;
                     }
-                    else if (xo[2][2]!=1||xo[2][2]!=2){
+                    else if (xo[2][2]==0){
                       xo[2][2]=1;
                       button9.setText("X");
                         button9.setStyle("-fx-background-color: #7d0013");
@@ -335,6 +339,7 @@ public class HelloController {
 
     }
     public void compMove(String difficulty){
+        oTurn=true;
         switch (difficulty){
             case "easy": easyMood();
             break;
@@ -441,10 +446,256 @@ public class HelloController {
 //            printOutResults(thereAWinner());
 //
 //        }
+        oTurn=false;
     }
     public void hardMood(){
         System.out.println(Math.random()*10);
-    }public void midMood(Button button,int i,int j){
+        double bestScore =  Double.NEGATIVE_INFINITY;
+        int[] move = new int[2];
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                // Is the spot available?
+                if (xo[i][j] == 0) {
+                    xo[i][j] = 2;
+                    double score = minimax(xo,0, false);
+                    xo[i][j] = 0;
+                    if (score > bestScore) {
+                        bestScore = score;
+                        move = new int[]{i, j};
+                    }
+                }
+            }
+        }
+        System.out.println(move[0]+" = move 0, " +move[1]+" = move 1");
+        if (!isThereEmptySlots(xo)) {
+            move = new int[]{-1, -1};
+        }
+        switch (move[0]){
+            case 0:
+                switch (move[1]){
+                    case 0:
+                        xo[move[0]][move[1]]=2;
+                        button1.setStyle("-fx-background-color: #0abf00");
+                        button1.setText("O");
+                        oPlayer++;
+                        if (thereAWinner() == 1 || thereAWinner() == 2) {
+                            printOutResults(thereAWinner());
+                            ended=true;
+                        }
+                        break;
+                    case 1:
+                        xo[move[0]][move[1]]=2;
+                        button2.setStyle("-fx-background-color: #0abf00");
+                        button2.setText("O");
+                        oPlayer++;
+                        if (thereAWinner() == 1 || thereAWinner() == 2) {
+                            printOutResults(thereAWinner());
+                            ended=true;
+                        }
+                        break;
+                    case 2:
+                        xo[move[0]][move[1]]=2;
+                        button3.setStyle("-fx-background-color: #0abf00");
+                        button3.setText("O");
+                        oPlayer++;
+                        if (thereAWinner() == 1 || thereAWinner() == 2) {
+                            printOutResults(thereAWinner());
+                            ended=true;
+                        }
+                        break;
+                    default:
+                        break;
+
+                }
+                break;
+            case 1:
+                switch (move[1]){
+                    case 0:
+                        xo[move[0]][move[1]]=2;
+                        button4.setStyle("-fx-background-color: #0abf00");
+                        button4.setText("O");
+                        oPlayer++;
+                        if (thereAWinner() == 1 || thereAWinner() == 2) {
+                            printOutResults(thereAWinner());
+                            ended=true;
+                        }
+                        break;
+                    case 1:
+                        xo[move[0]][move[1]]=2;
+                        button5.setStyle("-fx-background-color: #0abf00");
+                        button5.setText("O");
+                        oPlayer++;
+                        if (thereAWinner() == 1 || thereAWinner() == 2) {
+                            printOutResults(thereAWinner());
+                            ended=true;
+                        }break;
+                    case 2:
+                        xo[move[0]][move[1]]=2;
+                        button6.setStyle("-fx-background-color: #0abf00");
+                        button6.setText("O");
+                        oPlayer++;
+                        if (thereAWinner() == 1 || thereAWinner() == 2) {
+                            printOutResults(thereAWinner());
+                            ended=true;
+                        }
+                        break;
+
+                }break;
+            case 2:
+                switch (move[1]){
+                case 0:
+                    xo[move[0]][move[1]]=2;
+                    button7.setStyle("-fx-background-color: #0abf00");
+                    button7.setText("O");
+                    oPlayer++;
+                    if (thereAWinner() == 1 || thereAWinner() == 2) {
+                        printOutResults(thereAWinner());
+                        ended=true;
+                    }
+                    break;
+                case 1:
+                    xo[move[0]][move[1]]=2;
+                    button8.setStyle("-fx-background-color: #0abf00");
+                    button8.setText("O");
+                    oPlayer++;
+                    if (thereAWinner() == 1 || thereAWinner() == 2) {
+                        printOutResults(thereAWinner());
+                        ended=true;
+                    }
+                    break;
+                case 2:
+                    xo[move[0]][move[1]]=2;
+                    button9.setStyle("-fx-background-color: #0abf00");
+                    button9.setText("O");
+                    oPlayer++;
+                    if (thereAWinner() == 1 || thereAWinner() == 2) {
+                        printOutResults(thereAWinner());
+                        ended=true;
+                    }
+                    break;
+
+            }break;
+
+        }
+//        board[move.i][move.j] = ai;
+//        currentPlayer = human;
+            oTurn=false;
+
+    }
+    private double minimax(int[][]xo,int depth,boolean isMaximizing) {
+        int result = checkMinMaxWinnerForScore(xo);
+        if (result == 1 || result == -1) {
+            return result;
+        }
+
+        if (isThereEmptySlots(xo) == false)
+            return 0;
+
+        if (isMaximizing) {
+            double bestScore =  Double.NEGATIVE_INFINITY;
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    // Is the spot available?
+                    if (xo[i][j] == 0) {
+                        xo[i][j] = 2;
+                        double score = minimax(xo,depth + 1, false);
+//                        score = checkMinMaxWinnerForScore(arr);
+                        xo[i][j] = 0;
+                        bestScore = Math.max(score, bestScore);
+                    }
+                }
+            }
+            return bestScore;
+        } else {
+            double bestScore =  Double.POSITIVE_INFINITY;
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    // Is the spot available?
+                    if (xo[i][j] == 0) {
+                        xo[i][j] = 1;
+                        double score = minimax(xo,depth + 1, true);
+//                        score = checkMinMaxWinnerForScore(arr);
+                        xo[i][j] = 0;
+                        bestScore = Math.min(score, bestScore);
+                    }
+                }
+            }
+            return bestScore;
+        }
+    }
+    private int checkMinMaxWinner(int[][] arr){
+        //horizontal
+        for (int i = 0; i < 3; i++) {
+            if (equals3(arr[i][0], arr[i][1], arr[i][2])) {
+                return arr[i][0];
+            }
+        }
+        // Vertical
+        for (int i = 0; i < 3; i++) {
+            if (equals3(arr[0][i], arr[1][i], arr[2][i])) {
+                return arr[0][i];
+            }
+        }
+        // Diagonal
+        if (equals3(arr[0][0], arr[1][1], arr[2][2])) {
+            return arr[0][0];
+        }
+        if (equals3(arr[2][0], arr[1][1], arr[0][2])) {
+            return arr[2][0];
+        }
+        return 0;
+    }
+
+    private int checkMinMaxWinnerForScore(int[][] arr){
+        //horizontal
+        for (int i = 0; i < 3; i++) {
+            if (equals3(arr[i][0], arr[i][1], arr[i][2])) {
+                if (arr[i][0] == 1) {
+                    return -1;
+                } else {
+                    return 1;
+                }
+            }
+        }
+        // Vertical
+        for (int i = 0; i < 3; i++) {
+            if (equals3(arr[0][i], arr[1][i], arr[2][i])) {
+                if (arr[0][i] == 1) {
+                    return -1;
+                } else {
+                    return 1;
+                }
+            }
+        }
+        // Diagonal
+        if (equals3(arr[0][0], arr[1][1], arr[2][2])) {
+            if (arr[0][0] == 1) {
+                return -1;
+            } else {
+                return 1;
+            }
+        }
+        if (equals3(arr[2][0], arr[1][1], arr[0][2])) {
+            if (arr[2][0] == 1) {
+                return -1;
+            } else {
+                return 1;
+            }
+        }
+        return 0;
+    }
+
+    public boolean isThereEmptySlots(int[][] arr)
+    {
+        for (int i = 0; i < 3; i++)
+            for (int j = 0; j < 3; j++)
+                if (arr[i][j] == 0)
+                    return true;
+        return false;
+    }
+
+
+    public void midMood(Button button,int i,int j){
         if (oTurn&&xo[i][j]==0){
             xo[i][j]=2;
             oTurn=false;clicked=false;
@@ -452,7 +703,7 @@ public class HelloController {
             turns.setText(label+" turn: X's Turn!");
             if (thereAWinner()==1||thereAWinner()==2)printOutResults(thereAWinner());
         }else{new Alert(Alert.AlertType.ERROR, "box already chosen").showAndWait();
-            clicked=false;}
+            clicked=false; oTurn=true;}
     }
     public int thereAWinner(){
         //horizontal
